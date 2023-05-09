@@ -19,7 +19,6 @@ def insert_data(request):
     ufo=UserForm()
     pfo=ProfileForm()
     d={'ufo':ufo,'pfo':pfo}
-
     if request.method=='POST' and request.FILES:
         ufd=UserForm(request.POST)
         pfd=ProfileForm(request.POST,request.FILES)
@@ -34,7 +33,7 @@ def insert_data(request):
             NSPO.save()
             send_mail(
                 'registation',
-                'kalyan.cse.588@gmail.com',
+                'kalyandurga002@gmail.com',
                 'Registation for the application is successful',
                 [NSUO.email],
                 fail_silently=False
@@ -63,3 +62,40 @@ def user_login(request):
 def user_logout(request):
     logout(request)
     return HttpResponseRedirect(reverse('home'))
+
+@login_required
+def display_profile(request):
+    username=request.session.get('username')
+    UO=User.objects.get(username=username)
+    PO=Profile.objects.get(username=UO)
+    d={'UO':UO,'PO':PO}
+
+    return render(request,'display_profile.html',d)
+
+
+@login_required
+def change_password(request):
+    if request.method=='POST':
+        psw=request.POST['pw']  
+        username=request.session.get('username')
+        UO=User.objects.get(username=username)
+        UO.set_password(psw)
+        UO.save()
+        return HttpResponse('Password is Changed Successfully')
+   
+
+    return render(request,'change_password.html')
+
+def forget_password(request):
+    if request.method=='POST':
+        username=request.POST['un']
+        password=request.POST['psw']
+        UO=User.objects.get(username=username)
+        UO.set_password(password)
+        UO.save()
+        return HttpResponse('Password Updated Successfully')
+
+        
+            
+    
+    return render(request,'forget_password.html')
